@@ -3,6 +3,7 @@ FROM node:18
 
 # Set environment variables to avoid interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
+ENV VITE_API_URL=http://0.0.0.0:42069
 
 RUN npm install -g pnpm
 RUN npm install -g ens-index-ipfs-cli
@@ -35,10 +36,14 @@ ENV DATABASE_SCHEMA=my_schema
 
 WORKDIR /app
 RUN git clone https://github.com/ens-pin/control-dashboard.git
+WORKDIR /app/control-dashboard
+RUN pnpm install
+#RUN pnpm build
+#RUN npm install serve -g
 
 WORKDIR /app/ens-index-ipfs-service
 RUN chmod -R a+rx /app
 
-CMD ["pnpm", "run", "start"]
+CMD ["sh", "-c", "ipfs daemon & cd /app/ens-index-ipfs-service && pnpm run start & cd /app/control-dashboard && pnpm dev --host 0.0.0.0"]
 # Default command
 #CMD ["sh", "-c", "ipfs daemon & npm run start"]
